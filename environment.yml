@@ -1,0 +1,27 @@
+# BioPilot reproducible environment.
+# Tool versions pinned to current bioconda releases (verified June 2026).
+# Pinned versions + container digests are what give BioPilot its reproducibility guarantee.
+name: biopilot
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  # --- workflow engine ---
+  - nextflow=26.4.3          # requires Java 17+, pulled in below
+  - openjdk=17
+  # --- genomics tool catalog (the curated, version-pinned set) ---
+  - bwa=0.7.19
+  - samtools=1.23.1
+  - bcftools=1.23.1
+  - fastp=0.24.1
+  - fastqc=0.12.1
+  # --- python deps ---
+  - jsonschema>=4.0
+  - pysam>=0.22
+  - pip
+  - pip:
+      - -e .
+      # optional LLM backends (offline rule-based parser needs none of these):
+      # - anthropic>=0.34
+      # - openai>=1.0
