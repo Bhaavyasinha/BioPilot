@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "biopilot"
+version = "0.1.0"
+description = "Natural-language genomics pipelines that are verifiably reproducible and hallucination-resistant."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "BioPilot contributors" }]
+keywords = ["bioinformatics", "genomics", "llm", "reproducibility", "nextflow", "variant-calling"]
+dependencies = [
+    "jsonschema>=4.0",
+    "pysam>=0.22",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+# Optional LLM backends. The core runs fully offline with the rule-based parser.
+llm = ["anthropic>=0.34", "openai>=1.0"]
+
+[project.scripts]
+biopilot = "biopilot.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["biopilot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
