@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BioPilot — live playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0c1118; --panel:#121a24; --panel2:#0f161f; --line:#243140;
+    --ink:#e6edf3; --muted:#8b98a5; --teal:#28d39e; --teal-d:#0f7355;
+    --blue:#58a6ff; --green:#7ee787; --red:#ff6b6b; --amber:#f0b429;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  .mono{font-family:'JetBrains Mono',monospace}
+  h1,h2,h3{font-weight:600;margin:0;line-height:1.2}
+  p{margin:0}
+  a{color:var(--blue);text-decoration:none}
+
+  nav{border-bottom:1px solid var(--line);background:rgba(12,17,24,.8);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+  .nav-in{display:flex;justify-content:space-between;align-items:center;height:58px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:600}
+  .logo .d{width:24px;height:24px;border-radius:7px;background:var(--teal);color:#04221a;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  nav a.gh{font-size:14px;color:var(--ink);border:1px solid var(--line);padding:7px 14px;border-radius:10px}
+
+  .hero{text-align:center;padding:54px 0 26px}
+  .hero .tag{font-size:12px;color:var(--teal);letter-spacing:1px;text-transform:uppercase}
+  .hero h1{font-size:clamp(30px,5.5vw,46px);letter-spacing:-1px;margin:14px 0 12px}
+  .hero p{color:var(--muted);max-width:540px;margin:0 auto;font-size:17px}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:18px 0}
+  .panel h2{font-size:18px;display:flex;align-items:center;gap:9px}
+  .panel .hint{color:var(--muted);font-size:14px;margin:6px 0 16px}
+  .star{font-size:11px;background:var(--teal);color:#04221a;border-radius:20px;padding:2px 10px;font-weight:600}
+
+  .console{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .crow{display:flex;gap:9px;flex-wrap:wrap}
+  .crow .pmt{color:var(--teal);font-family:'JetBrains Mono',monospace;padding-top:11px}
+  input.ti{flex:1;min-width:200px;background:#0a0f16;border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:14px;padding:11px 12px}
+  input.ti:focus{outline:none;border-color:var(--teal)}
+  button.go{background:var(--teal);color:#04221a;border:none;border-radius:10px;font-weight:600;font-size:14px;padding:0 20px;cursor:pointer}
+  button.go:hover{background:#22b98b}
+  .examples{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+  .ex{font-family:'JetBrains Mono',monospace;font-size:12px;background:#0a0f16;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 10px;cursor:pointer}
+  .ex:hover{border-color:var(--teal);color:var(--ink)}
+
+  .verdict{margin-top:14px;border-radius:12px;padding:13px 15px;display:none}
+  .verdict.show{display:block;animation:fade .3s}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .verdict.safe{background:rgba(40,211,158,.12);border:1px solid var(--teal-d)}
+  .verdict.block{background:rgba(255,107,107,.1);border:1px solid #5c2626}
+  .verdict .vh{font-weight:600;display:flex;align-items:center;gap:8px}
+  .verdict.safe .vh{color:var(--green)} .verdict.block .vh{color:var(--red)}
+  .issue{font-size:13px;color:var(--ink);margin-top:7px;font-family:'JetBrains Mono',monospace}
+  .issue b{color:var(--amber);font-weight:500}
+
+  .steps{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+  .stp{display:flex;gap:10px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:13px;background:#0a0f16;border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+  .stp .n{color:var(--teal);width:18px}
+  .stp.check{border-color:var(--teal-d);background:rgba(40,211,158,.08)}
+  .vcf{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+  .vchip{background:rgba(88,166,255,.1);border:1px solid #234; color:var(--blue);border-radius:9px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:13px}
+
+  .bars{display:flex;gap:28px;justify-content:center;align-items:flex-end;height:150px;margin:16px 0 4px}
+  .bc{text-align:center;width:120px}
+  .bc .p{font-weight:700;font-size:20px;margin-bottom:6px}
+  .bc .b{border-radius:10px 10px 0 0;transition:height .9s ease;height:0}
+  .bc .l{color:var(--muted);font-size:12px;margin-top:8px}
+  .win .b{background:var(--teal)} .win .p{color:var(--teal)}
+  .lose .b{background:var(--red)} .lose .p{color:var(--red)}
+
+  .about{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .av{width:64px;height:64px;border-radius:50%;background:var(--teal-d);color:#cffaec;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px}
+  .about .role{color:var(--teal);font-size:13px;margin-top:2px}
+  footer{border-top:1px solid var(--line);padding:26px 0;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <div class="logo"><span class="d">B</span> BioPilot</div>
+  <a class="gh" href="https://github.com" target="_blank" rel="noopener">GitHub ↗</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="tag">live playground</div>
+  <h1>Genomics you can trust</h1>
+  <p>Type a request, watch it build a real pipeline — and try to sneak a broken command past the safety-checker. (You can't.)</p>
+</div></header>
+
+<main class="wrap">
+
+  <section class="panel">
+    <h2>🛡️ Safety-checker <span class="star">the live, real part</span></h2>
+    <p class="hint">This runs BioPilot's actual validator. Edit the command or click an example, then Check.</p>
+    <div class="console">
+      <div class="crow">
+        <span class="pmt">$</span>
+        <input class="ti" id="cmd" value="bwa mem --turbo ref.fasta reads.fastq" />
+        <button class="go" onclick="check()">Check</button>
+      </div>
+      <div class="examples">
+        <span class="ex" onclick="setCmd(this)">bwa mem -t 2 ref.fasta reads.fastq</span>
+        <span class="ex" onclick="setCmd(this)">bwa mem --turbo ref.fasta reads.fastq</span>
+        <span class="ex" onclick="setCmd(this)">bcftools call -mv reads.fastq</span>
+        <span class="ex" onclick="setCmd(this)">rm -rf /data</span>
+        <span class="ex" onclick="setCmd(this)">samtools sort -o ref.fasta aln.sam</span>
+      </div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>🧬 English → pipeline</h2>
+    <p class="hint">Plain words in, a real plan out. (The DNA-crunching result is pre-computed for this public demo.)</p>
+    <div class="console">
+      <div class="crow">
+        <span class="pmt">›</span>
+        <input class="ti" id="prompt" value="find the variants in this DNA" />
+        <button class="go" onclick="runPipe()">Run</button>
+      </div>
+      <div id="pipeout"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>📊 The headline result</h2>
+    <p class="hint">Click to run the real benchmark — 12 broken commands vs the safety-checker.</p>
+    <button class="go" style="padding:10px 18px" onclick="bench()">Run benchmark</button>
+    <div id="benchout"></div>
+  </section>
+
+  <section class="panel">
+    <h2>About</h2>
+    <div class="about">
+      <div class="av">BS</div>
+      <div>
+        <h3 style="font-size:19px">Bhaavya Sinha</h3>
+        <div class="role">Bioinformatics · built in 2026</div>
+        <p style="color:var(--muted);font-size:14px;margin-top:8px">BioPilot is my project on making AI-driven genomics both easy to use and trustworthy — plain-English input, reproducible results, and a real defense against AI hallucinations.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer><div class="wrap">BioPilot · open source · MIT license · <a href="https://github.com" target="_blank" rel="noopener">GitHub</a></div></footer>
+
+<script>
+  function setCmd(el){ document.getElementById('cmd').value = el.textContent; check(); }
+
+  async function check(){
+    const command = document.getElementById('cmd').value;
+    const v = document.getElementById('verdict');
+    v.className = 'verdict show'; v.innerHTML = '<div class="vh">checking…</div>';
+    try{
+      const r = await fetch('/api/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command})});
+      const d = await r.json();
+      const errs = d.issues.filter(i=>i.severity==='error');
+      if(d.ok){
+        v.className='verdict show safe';
+        v.innerHTML='<div class="vh">✓ Safe to run</div><div class="issue">no problems found — this command is valid.</div>';
+      }else{
+        v.className='verdict show block';
+        let h='<div class="vh">✕ Blocked — '+errs.length+' problem'+(errs.length>1?'s':'')+' caught</div>';
+        errs.forEach(i=>{ h+='<div class="issue">• '+i.message+' <b>['+i.code+']</b></div>'; });
+        v.innerHTML=h;
+      }
+    }catch(e){ v.className='verdict show block'; v.innerHTML='<div class="vh">server not reachable</div>'; }
+  }
+
+  async function runPipe(){
+    const prompt = document.getElementById('prompt').value;
+    const out = document.getElementById('pipeout');
+    out.innerHTML='<div class="hint" style="margin-top:12px">planning…</div>';
+    try{
+      const r = await fetch('/api/parse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+      const d = await r.json();
+      let h='<div class="steps">';
+      d.steps.forEach((s,idx)=>{ const hot = s.id==='bcftools_call'||s.id==='bcftools_mpileup'; h+='<div class="stp '+(hot?'check':'')+'"><span class="n">'+(idx+1)+'</span>'+s.command+'</div>'; });
+      h+='</div><div class="vcf">';
+      d.variants.forEach(x=>{ h+='<span class="vchip">'+x.chrom+':'+x.pos+' '+x.ref+'→'+x.alt+'</span>'; });
+      h+='</div><div class="hint" style="margin-top:10px;color:var(--green)">✓ '+d.variants.length+' variants found · reproducibility receipt written</div>';
+      out.innerHTML=h;
+    }catch(e){ out.innerHTML='<div class="hint" style="margin-top:12px">server not reachable</div>'; }
+  }
+
+  async function bench(){
+    const out = document.getElementById('benchout');
+    out.innerHTML='<div class="hint" style="margin-top:12px">running…</div>';
+    try{
+      const r = await fetch('/api/benchmark'); const d = await r.json();
+      let cats=''; for(const k in d.per_category){ const c=d.per_category[k]; cats+='<div class="stp"><span class="n">✓</span>'+k+' — '+c.caught+'/'+c.total+'</div>'; }
+      out.innerHTML='<div class="bars"><div class="bc win"><div class="p">'+d.rate+'%</div><div class="b" data-h="120"></div><div class="l">BioPilot</div></div>'
+        +'<div class="bc lose"><div class="p">0%</div><div class="b" data-h="3"></div><div class="l">Normal AI tool</div></div></div>'
+        +'<div class="hint" style="text-align:center">caught '+d.n_caught+'/'+d.n_bad+' bad commands · '+d.false_positives+' false alarms</div>'
+        +'<div class="steps" style="margin-top:14px">'+cats+'</div>';
+      setTimeout(()=>document.querySelectorAll('#benchout .b').forEach(b=>b.style.height=b.dataset.h+'px'),50);
+    }catch(e){ out.innerHTML='<div class="hint" style="margin-top:12px">server not reachable</div>'; }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+# pipeline run outputs (kept out of git; examples/ holds a curated sample)
+runs/
+work/
+.nextflow*
+*.bam
+*.bai
+*.bcf
+*.sam
+*.fai
+*.amb
+*.ann
+*.bwt
+*.pac
+*.sa
